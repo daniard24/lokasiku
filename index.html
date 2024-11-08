@@ -9,6 +9,7 @@
     var x = document.getElementById("geo");
     var addressElement = document.getElementById("address");
 
+    // Fungsi untuk mendapatkan lokasi pengguna
     function getLocation() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(showPosition, showError);
@@ -17,25 +18,29 @@
       }
     }
 
+    // Fungsi untuk menampilkan lintang, bujur, dan mengambil alamat
     function showPosition(position) {
       var latitude = position.coords.latitude;
       var longitude = position.coords.longitude;
       x.innerHTML = "Latitude: " + latitude + ", Longitude: " + longitude;
 
+      // Panggil fungsi untuk mendapatkan alamat menggunakan Nominatim
       getAddress(latitude, longitude);
     }
 
-    // Mengambil alamat menggunakan LocationIQ
+    // Fungsi untuk mengambil alamat menggunakan Nominatim
     function getAddress(latitude, longitude) {
-      var apiKey = "pk.87ae58856826854dd5c1be640547b549"; // Ganti dengan API Key Anda
-      var url = `https://us1.locationiq.com/v1/reverse.php?key=${apiKey}&lat=${latitude}&lon=${longitude}&format=json`;
+      var url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`;
 
       fetch(url)
         .then(response => response.json())
         .then(data => {
-          if (data && data.display_name) {
+          if (data && data.address) {
             var address = data.display_name;
             addressElement.innerHTML = "Address: " + address;
+            
+            // Redirect ke URL baru dengan query parameters lat, lon, dan address
+            redirectToUrl(latitude, longitude, address);
           } else {
             addressElement.innerHTML = "Unable to retrieve address.";
           }
@@ -45,6 +50,17 @@
         });
     }
 
+    // Fungsi untuk mengalihkan ke URL baru dengan parameter
+    function redirectToUrl(latitude, longitude, address) {
+      // Encode address agar aman sebagai bagian dari URL
+      var encodedAddress = encodeURIComponent(address);
+      var newUrl = `${window.location.origin}${window.location.pathname}?lat=${latitude}&lon=${longitude}&address=${encodedAddress}`;
+      
+      // Redirect ke URL yang baru
+      window.location.href = newUrl;
+    }
+
+    // Fungsi untuk menangani error jika terjadi
     function showError(error) {
       switch(error.code) {
         case error.PERMISSION_DENIED:
@@ -62,8 +78,8 @@
       }
     }
 
+    // Memanggil fungsi untuk mendapatkan lokasi saat halaman dimuat
     getLocation();
   </script>
 </body>
 </html>
-
