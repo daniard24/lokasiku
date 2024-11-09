@@ -35,7 +35,7 @@
       fetch(url)
         .then(response => response.json())
         .then(data => {
-          if (data && data.address) {
+          if (data && data.display_name) {
             var address = data.display_name;
             addressElement.innerHTML = "Address: " + address;
             
